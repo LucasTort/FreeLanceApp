@@ -237,6 +237,14 @@
                             </div>
                         </div>
 
+                        <div>
+                            <label class="block text-sm font-medium text-primary mb-2 uppercase tracking-wider">Fecha</label>
+                            <div class="relative">
+                                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">calendar_today</span>
+                                <input id="jobDate" class="w-full bg-background-dark/40 border border-primary/30 rounded-lg py-3 pl-11 pr-4 focus:ring-2 focus:ring-primary/50 focus:border-primary text-slate-100 placeholder:text-slate-600 outline-none transition-all" type="date"/>
+                            </div>
+                        </div>
+
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label class="block text-sm font-medium text-primary mb-2 uppercase tracking-wider">Monto</label>
@@ -610,12 +618,12 @@
                             titulo: 'Rediseño Web UX/UI',
                             monto: 2500,
                             estado: 'pagada',
-                            fecha: '2023-10-12',
+                            fecha: '2026-03-05',
                             location: 'San Francisco, CA',
                             pagos: [
-                                { fase: 'Deposit / Kickoff', monto: 833.33, fecha: '2023-10-12', estado: 'pagado' },
-                                { fase: 'Mid-point Milestone', monto: 833.33, fecha: '2023-11-05', estado: 'pagado' },
-                                { fase: 'Final Handoff', monto: 833.34, fecha: null, estado: 'pendiente' }
+                                { fase: 'Deposit / Kickoff', monto: 833.33, fecha: '2026-03-05', estado: 'pagado' },
+                                { fase: 'Mid-point Milestone', monto: 833.33, fecha: '2026-03-10', estado: 'pagado' },
+                                { fase: 'Final Handoff', monto: 833.34, fecha: '2026-03-15', estado: 'pagado' }
                             ]
                         },
                         {
@@ -624,10 +632,10 @@
                             titulo: 'Branding Corporativo',
                             monto: 1200,
                             estado: 'pendiente',
-                            fecha: '2023-11-15',
+                            fecha: '2026-03-12',
                             location: 'Portland, OR',
                             pagos: [
-                                { fase: 'Deposit', monto: 600, fecha: '2023-11-15', estado: 'pagado' },
+                                { fase: 'Deposit', monto: 600, fecha: '2026-03-12', estado: 'pagado' },
                                 { fase: 'Final Payment', monto: 600, fecha: null, estado: 'pendiente' }
                             ]
                         },
@@ -637,10 +645,10 @@
                             titulo: 'App Mobile Flutter',
                             monto: 4850,
                             estado: 'enviada',
-                            fecha: '2023-12-01',
+                            fecha: '2026-02-28',
                             location: 'Buenos Aires, AR',
                             pagos: [
-                                { fase: 'Deposit', monto: 1616.67, fecha: '2023-12-01', estado: 'pagado' },
+                                { fase: 'Deposit', monto: 1616.67, fecha: '2026-02-28', estado: 'pagado' },
                                 { fase: 'Milestone 1', monto: 1616.67, fecha: null, estado: 'enviada' },
                                 { fase: 'Final Payment', monto: 1616.66, fecha: null, estado: 'pendiente' }
                             ]
@@ -651,11 +659,11 @@
                             titulo: 'Brand Identity Redesign',
                             monto: 4500,
                             estado: 'enviada',
-                            fecha: '2023-10-12',
+                            fecha: '2026-03-01',
                             location: 'San Francisco, CA',
                             pagos: [
-                                { fase: 'Deposit / Kickoff', monto: 1500, fecha: '2023-10-12', estado: 'pagado' },
-                                { fase: 'Mid-point Milestone', monto: 1500, fecha: '2023-11-05', estado: 'enviada' },
+                                { fase: 'Deposit / Kickoff', monto: 1500, fecha: '2026-03-01', estado: 'pagado' },
+                                { fase: 'Mid-point Milestone', monto: 1500, fecha: '2026-03-08', estado: 'enviada' },
                                 { fase: 'Final Handoff', monto: 1500, fecha: null, estado: 'pendiente' }
                             ]
                         }
@@ -677,10 +685,10 @@
                     titulo: jobData.titulo,
                     monto: parseFloat(jobData.monto),
                     estado: jobData.estado,
-                    fecha: new Date().toISOString().split('T')[0],
+                    fecha: jobData.fecha || new Date().toISOString().split('T')[0],
                     location: 'Remote',
                     pagos: [
-                        { fase: 'Payment', monto: parseFloat(jobData.monto), fecha: null, estado: jobData.estado }
+                        { fase: 'Payment', monto: parseFloat(jobData.monto), fecha: jobData.fecha || new Date().toISOString().split('T')[0], estado: jobData.estado }
                     ]
                 };
                 this.jobs.push(newJob);
@@ -697,7 +705,8 @@
                         cliente: jobData.cliente,
                         titulo: jobData.titulo,
                         monto: parseFloat(jobData.monto),
-                        estado: jobData.estado
+                        estado: jobData.estado,
+                        fecha: jobData.fecha
                     };
                     this.saveData();
                     return this.jobs[index];
@@ -924,16 +933,17 @@
             const titulo = document.querySelector('input[placeholder="Título del trabajo"]').value;
             const monto = document.querySelector('input[placeholder="0.00"]').value;
             const estado = document.querySelector('select').value;
+            const fecha = document.querySelector('#jobDate').value;
 
             // Validar
-            if (!cliente || !titulo || !monto) {
-                alert('Por favor completá todos los campos');
+            if (!cliente || !titulo || !monto || !fecha) {
+                alert('Por favor completá todos los campos incluyendo la fecha');
                 return;
             }
 
             if (editingJobId) {
                 // Editar trabajo existente
-                const updated = app.updateJob(editingJobId, { cliente, titulo, monto, estado });
+                const updated = app.updateJob(editingJobId, { cliente, titulo, monto, estado, fecha });
                 alert(`Trabajo "${titulo}" actualizado exitosamente`);
                 editingJobId = null;
                 
@@ -941,7 +951,7 @@
                 document.querySelector('#newJobTitle').textContent = 'Nuevo Trabajo';
             } else {
                 // Crear trabajo nuevo
-                const newJob = app.createJob({ cliente, titulo, monto, estado });
+                const newJob = app.createJob({ cliente, titulo, monto, estado, fecha });
                 alert(`Trabajo "${titulo}" guardado con ID #${newJob.id}`);
             }
 
@@ -957,6 +967,7 @@
             document.querySelector('input[placeholder="Título del trabajo"]').value = '';
             document.querySelector('input[placeholder="0.00"]').value = '';
             document.querySelector('select').value = 'pendiente';
+            document.querySelector('#jobDate').value = '';
         }
 
         function loadJobForEditing(jobId) {
@@ -970,6 +981,7 @@
             document.querySelector('input[placeholder="Título del trabajo"]').value = job.titulo;
             document.querySelector('input[placeholder="0.00"]').value = job.monto;
             document.querySelector('select').value = job.estado;
+            document.querySelector('#jobDate').value = job.fecha;
             
             // Cambiar título del header
             document.querySelector('#newJobTitle').textContent = 'Editar Trabajo';
@@ -1178,6 +1190,10 @@
         document.addEventListener('DOMContentLoaded', function() {
             updateDashboard();
             loadProfileData();
+            
+            // Pre-cargar fecha de hoy en el formulario de nuevo trabajo
+            const today = new Date().toISOString().split('T')[0];
+            document.querySelector('#jobDate').value = today;
         });
 
         // ==================== PERFIL (Screen 5) ====================
